@@ -20,6 +20,9 @@ if(!file.exists("./raw_data/Florida_COVID19_Case_Line_Data.csv")) {
   wget(url = "https://open-fdoh.hub.arcgis.com/datasets/florida-covid19-case-line-data?selectedAttribute=Age_group", destfile = "./raw_data/Florida_COVID19_Case_Line_Data.csv")
 }
 
+if(!file.exists("./raw_data/US_MAP_DATA.csv")) {
+  wget(url = "https://www.cdc.gov/covid-data-tracker/#cases", destfile = "./raw_data/US_MAP_DATA.csv")
+}
 ```
 
 ```{r USA_Conf}
@@ -82,8 +85,9 @@ knitr::kable(first_case, caption = "Seven Day Average") %>%
 
 ggplot(covid19Data, aes(State, total_cases)) + geom_col(color = "black", fill = "indianred2") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Most Popular Vaction State in The Month of July", x = "State", y = "total.Cases") + scale_y_continuous(labels = scales::number_format()) + coord_flip()
 ```
+  <!-- i might bo july pr year and use choropleth --->
 
-### All State  Total Cases In July
+### All State  Total Cases In July or Year
 ```{r States_highCase}
 states_highcase <- read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
 	select("State", "Month", "") %>%
@@ -94,3 +98,14 @@ knitr::kable(first_case, caption = "Highest State COVID-19 Case") %>%
 	kable_styling(position = "float_left")
 ```
 
+```{r coelacanth, fig.cap = "**Figure 1:** Total COVID Cases as of 2020-07-08", fig.width = 10}
+choro <- read_csv("./output/total_cases__by_state.csv") %>%
+  rename(region = State, value = Total_Cases) %>%
+  as.data.frame() %>%
+  StateChoropleth$new()
+choro$title = "Total COVID Cases"
+choro$show_labels = FALSE
+choro$set_num_colors(5)
+choro$ggplot_scale = scale_fill_brewer(type = "seq", palette = 18, name = "Total Cases By State", drop = FALSE)
+choro$render()
+```
