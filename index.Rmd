@@ -5,7 +5,6 @@ output: html_document
 
 ```{r setup, include=FALSE, echo = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = FALSE)
-
 library(tidyverse)
 library(lubridate)
 library(HelpersMG)
@@ -15,15 +14,83 @@ library(tinytex)
 
 ```{r download}
 if(!file.exists("./raw_data/covid_confirmed_usafacts.csv")) {
-  wget(url = "https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/", destfile = "./raw_data/covid_confirmed_usafacts.csv")
+  wget(url = "https://usafactsstatic.blob.core.windows.net/public/data/covid-19/covid_confirmed_usafacts.csv", destfile = "./raw_data/covid_confirmed_usafacts.csv")
+}
+if(!file.exists("./raw_data/Florida_COVID19_Case_Line_Data.csv")) {
+  wget(url = "https://open-fdoh.hub.arcgis.com/datasets/florida-covid19-case-line-data?selectedAttribute=Age_group", destfile = "./raw_data/Florida_COVID19_Case_Line_Data.csv")
 }
 
 ```
 
 ```{r USA_Conf}
- read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
-    filter(State == "FL") %>%
-    select(-c("countyFIPS", "stateFIPS", "State")) %>%
-    # pivot your data and/or combine it all together %>%
-    write_csv("./output/florida_cases_or_whatever.csv")
+read_csv("./raw_data/covid_confirmed_usafacts.csv") %>% # This reads the file
+    filter(State == "FL") %>% # This selects only Florida
+    select(-c(countyFIPS, `County Name`, State, stateFIPS)) %>% # This gets rid of unnecessary columns
+    summarize_all(sum) %>% # This adds together all the columns to get a statewide value
+    pivot_longer(everything(), names_to = "Date", values_to = "Cases") 
+# This makes the table long instead of wid
+ write_csv("./output/florida_cases_or_whatever.csv")
 ```
+## Introduction
+<br/>
+I am doing a project for Biology 390 Reproducible Research at Ferris State  University Summer 2020 semester. I worked with a dataset to create reproducible research report online. Our class is working and exploring data from COVID-19. After hearing about a friend of mine contracted the virus after visting FL in the month of July, I created a hypothesis to explore. This project is under version control using git/Github and is written as an R markdown (Rmd) file to create graphs and table. 
+
+<br/>
+<br/>
+<br/>
+
+## Hypothesis
+<br/>
+I am chossing to do a data set on Florida COVID cases. One variables I am thinking of exploring is on week of July 8 through the 15th the COVID cases increase tremendously to a whopping number of 75,291, and on July 12th Florida set a national record for the largest single day increase of postive cases. I believe this is due to the Holiday fourth of July, where people gather in large crowds to mingle and celebrate. Also on Saturday July 11 Magic Kingdom and Animal Kingdom at Disney opened, which also draws crowd. 
+<br/>
+<br/>
+<br/>
+
+## Data 
+For this project I used two different data sets thst is online.
+<br/>
+<br/>
+**1.** 
+<br/>
+<br/>
+<br/>
+
+## Analyses 
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+### A 7 Day Average
+```{r First_Case}
+first_case <- read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
+	select(State == FL) %>%
+	filter() %>%
+	mutate(Seven_Day_Average = (Cases - lag(Cases, 7)) / 7)
+			
+knitr::kable(first_case, caption = "Seven Day Average") %>%
+	kable_styling(position = "float_left")
+
+```
+
+ <!--  A bar plot of total cases due to COVID for most polpular vacation state in July, Texas, California, Nevada. I used the States as my x-axis and my total cases on my y-axis. Geom_col() is telling my ggplot to make a bar graph. Lastly, you'll notice the labs() function and that is to give my graph labels and a title. --> 
+
+### Most Popular Vaction State in July
+```{r ggplotcovid, message=FALSE, echo=FALSE, warning=FALSE, out.width = "500px", out.extra='style="float:right; padding:10px"'}
+
+ggplot(covid19Data, aes(State, total_cases)) + geom_col(color = "black", fill = "indianred2") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Most Popular Vaction State in The Month of July", x = "State", y = "total.Cases") + scale_y_continuous(labels = scales::number_format()) + coord_flip()
+```
+
+### All State  Total Cases In July
+```{r States_highCase}
+states_highcase <- read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
+	select("State", "Month", "") %>%
+	filter(Total_Cases == 1, Date <= "2020-01-19 - 2020-08-11") %>%
+	arrange(Date) 
+			
+knitr::kable(first_case, caption = "Highest State COVID-19 Case") %>%
+	kable_styling(position = "float_left")
+```
+
