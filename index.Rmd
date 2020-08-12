@@ -3,26 +3,27 @@ title: "Ke'Shondra Reed"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = FALSE)
+
+library(tidyverse)
+library(lubridate)
+library(HelpersMG)
+library(kableExtra)
+library(tinytex)
 ```
 
-## R Markdown
+```{r download}
+if(!file.exists("./raw_data/covid_confirmed_usafacts.csv")) {
+  wget(url = "https://usafacts.org/visualizations/coronavirus-covid-19-spread-map/", destfile = "./raw_data/covid_confirmed_usafacts.csv")
+}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r USA_Conf}
+ read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
+    filter(State == "FL") %>%
+    select(-c("countyFIPS", "stateFIPS", "State")) %>%
+    # pivot your data and/or combine it all together %>%
+    write_csv("./output/florida_cases_or_whatever.csv")
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
