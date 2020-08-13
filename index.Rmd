@@ -1,111 +1,165 @@
 ---
-title: "Ke'Shondra Reed"
-output: html_document
+title: "COVID Research"
+author: "Ke'Shondra Reed"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+      toc: TRUE
+      toc_float: FALSE
+      number_sections: TRUE
 ---
+<style>
+  body {
+    background-color: #FFCCCB;
+  }
+ 
+  }
+</style>  
 
-```{r setup, include=FALSE, echo = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, error = FALSE)
-library(tidyverse)
-library(lubridate)
-library(HelpersMG)
-library(kableExtra)
-library(tinytex)
+```{r setup, include=FALSE}
+library(readr)
+library(ggplot2)
+library(dplyr)
 ```
 
-```{r download}
-if(!file.exists("./raw_data/covid_confirmed_usafacts.csv")) {
-  wget(url = "https://usafactsstatic.blob.core.windows.net/public/data/covid-19/covid_confirmed_usafacts.csv", destfile = "./raw_data/covid_confirmed_usafacts.csv")
-}
-if(!file.exists("./raw_data/Florida_COVID19_Case_Line_Data.csv")) {
-  wget(url = "https://open-fdoh.hub.arcgis.com/datasets/florida-covid19-case-line-data?selectedAttribute=Age_group", destfile = "./raw_data/Florida_COVID19_Case_Line_Data.csv")
-}
+```{r importing, message = FALSE, echo = FALSE}
 
-if(!file.exists("./raw_data/US_MAP_DATA.csv")) {
-  wget(url = "https://www.cdc.gov/covid-data-tracker/#cases", destfile = "./raw_data/US_MAP_DATA.csv")
-}
+myData <- read_csv("raw_data/confirmed_cases_worldwide.csv")
+myData2 <- read_csv("raw_data/confirmed_cases_by_country.csv")
+myData3 <- read_csv("raw_data/confirmed_cases_china_vs_world.csv")
+myData4 <- read_csv("raw_data/confirmed_cases_top7_outside_china.csv")
 ```
 
-```{r USA_Conf}
-read_csv("./raw_data/covid_confirmed_usafacts.csv") %>% # This reads the file
-    filter(State == "FL") %>% # This selects only Florida
-    select(-c(countyFIPS, `County Name`, State, stateFIPS)) %>% # This gets rid of unnecessary columns
-    summarize_all(sum) %>% # This adds together all the columns to get a statewide value
-    pivot_longer(everything(), names_to = "Date", values_to = "Cases") 
-# This makes the table long instead of wid
- write_csv("./output/florida_cases_or_whatever.csv")
-```
-## Introduction
+## **Introduction**
 <br/>
-I am doing a project for Biology 390 Reproducible Research at Ferris State  University Summer 2020 semester. I worked with a dataset to create reproducible research report online. Our class is working and exploring data from COVID-19. After hearing about a friend of mine contracted the virus after visting FL in the month of July, I created a hypothesis to explore. This project is under version control using git/Github and is written as an R markdown (Rmd) file to create graphs and table. 
+I am doing a project for Biology 390 Reproducible Research at Ferris State  University Summer 2020 semester. I worked with dataset to create reproducible research report online. During the first outbreak of the coronavirus in 2019 I was not that concerned with the virus because it wasn’t in the United State. I actually thought it was funny because there were memes all over social media about Michiganders, and that we will drink ginger ales to get rid of any flu and cold like symptoms. As some people like myself may have not known that this is not the first coronavirus outbreak. The first large outbreak was 18 years ago and was refer to as the severe acute respiratory syndrome-related coronaviruses (SARS-CoV). The source of this outbreak was found in bats, and studies showed that it could infect humans. A new outbreak refers to as the novel coronavirus(2019-nCoV) that were first reported on December 12, 2019 in China, and causing a widespread of acute respiratory syndrome in humans, and there were 56 deaths reported by January 2020. I created a hypothesis to explore. This project is under version control using git/Github and is written as an R markdown (Rmd) file to create graphs and table. 
 
 <br/>
 <br/>
 <br/>
 
-## Hypothesis
+## **Hypothesis**
 <br/>
-I am chossing to do a data set on Florida COVID cases. One variables I am thinking of exploring is on week of July 8 through the 15th the COVID cases increase tremendously to a whopping number of 75,291, and on July 12th Florida set a national record for the largest single day increase of postive cases. I believe this is due to the Holiday fourth of July, where people gather in large crowds to mingle and celebrate. Also on Saturday July 11 Magic Kingdom and Animal Kingdom at Disney opened, which also draws crowd. 
-<br/>
-<br/>
-<br/>
-
-## Data 
-For this project I used two different data sets thst is online.
-<br/>
-<br/>
-**1.** 
+I am choosing to do  data sets on cases in china and the rest of the world. My hypothesis is that China would have numerous of cases and death since it originated from there as well as it would spread to other parts of the world.I knew and thought it would spread because of traveling. Also I think that the spread and total cases will decrease faster in China than other parts of the World.
 <br/>
 <br/>
 <br/>
 
-## Analyses 
-<br/>
-<br/>
-<br/>
+## **Data** 
+
+* The raw data was put togeter by Johns Hopkins University Center for Systems Science and Engineering  https://systems.jhu.edu/research/public-health/ncov/
 <br/>
 <br/>
 <br/>
 
-### A 7 Day Average
-```{r First_Case}
-first_case <- read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
-	select(State == FL) %>%
-	filter() %>%
-	mutate(Seven_Day_Average = (Cases - lag(Cases, 7)) / 7)
-			
-knitr::kable(first_case, caption = "Seven Day Average") %>%
-	kable_styling(position = "float_left")
+## **Analyses** 
+<br/>
+<br/>
+<br/>
+
+
+### *COVID Cases in the World*
+```{r World_Case,message = FALSE, echo = FALSE}
+
+ww_cases <- myData
+ggplot(myData, aes(date, y=cum_cases)) +
+  geom_line() +
+  ylab("Total Cases")
+
+#A line plot of total cases and date	
 
 ```
 
- <!--  A bar plot of total cases due to COVID for most polpular vacation state in July, Texas, California, Nevada. I used the States as my x-axis and my total cases on my y-axis. Geom_col() is telling my ggplot to make a bar graph. Lastly, you'll notice the labs() function and that is to give my graph labels and a title. --> 
 
-### Most Popular Vaction State in July
-```{r ggplotcovid, message=FALSE, echo=FALSE, warning=FALSE, out.width = "500px", out.extra='style="float:right; padding:10px"'}
+* In this figure it displaying that COVID in China was on a rised from the beginning on February until mid- March.
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
-ggplot(covid19Data, aes(State, total_cases)) + geom_col(color = "black", fill = "indianred2") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + labs(title = "Most Popular Vaction State in The Month of July", x = "State", y = "total.Cases") + scale_y_continuous(labels = scales::number_format()) + coord_flip()
+### *China VS. The World*
+
+```{r China_Case,message = FALSE, echo = FALSE}
+cases_china_world <- ggplot(myData3) +
+   
+geom_line(aes(date, cum_cases, group = is_china, color = is_china)) +
+  ylab("Total Cases")
+# line plot of total cases vs. date
+cases_china_world
 ```
-  <!-- i might bo july pr year and use choropleth --->
 
-### All State  Total Cases In July or Year
-```{r States_highCase}
-states_highcase <- read_csv("./raw_data/covid_confirmed_usafacts.csv") %>%
-	select("State", "Month", "") %>%
-	filter(Total_Cases == 1, Date <= "2020-01-19 - 2020-08-11") %>%
-	arrange(Date) 
-			
-knitr::kable(first_case, caption = "Highest State COVID-19 Case") %>%
-	kable_styling(position = "float_left")
+
+* In figure 2 China was still on the rise but also other countries in the world was on a greater rise. I expected this since the first case of COVID was reported in China in December, and still kind of new to other countries. China might had a better control durning this time
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+### *China Trend Line* 
+```{r China_trend,message = FALSE, echo = FALSE}
+china_feb15 <- myData3 %>%
+  filter(is_china == "China", date >= "2020-02-15")
+
+ggplot(china_feb15, aes(date, cum_cases)) +
+  geom_line() +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylab("Confirmed cases")
+#  A line plot date vs. total cases and a linear trend line showing if case decrease or increase
 ```
 
-```{r coelacanth, fig.cap = "**Figure 1:** Total COVID Cases as of 2020-07-08", fig.width = 10}
-choro <- read_csv("./output/total_cases__by_state.csv") %>%
-  rename(region = State, value = Total_Cases) %>%
-  as.data.frame() %>%
-  StateChoropleth$new()
-choro$title = "Total COVID Cases"
-choro$show_labels = FALSE
-choro$set_num_colors(5)
-choro$ggplot_scale = scale_fill_brewer(type = "seq", palette = 18, name = "Total Cases By State", drop = FALSE)
-choro$render()
+
+* In this Figure this China and the blue line showing a trend line. This line represens if the cases would increase or decrease. As you can see China cases began to decrease in the beginning of March.
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+### *The Rest of The World Trend*
+```{r NotChina_trend,message = FALSE, echo = FALSE}
+not_china <- myData3 %>%
+  filter(is_china == "Not China")
+
+not_china_trend <- ggplot(not_china, aes(date, cum_cases)) +
+  geom_line() +
+  geom_smooth(method = "lm", se = FALSE) +
+  ylab("Total  cases")
+# A line plot total cases vs. date and a trend to show if cases decrease or inccrease
+
+not_china_trend
 ```
+
+
+* This figure is similar to the one above but this one is showing the rest of the world with a trend line. The rest of the world case began to increase in March, as expected.  
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+
+### *Countries with Highest Cases in March* 
+```{r top_7, message = FALSE, echo = FALSE}
+ggplot(myData4, aes(date, cum_cases, color = country, group = country)) +
+  geom_line() +
+  ylab("Cumulative confirmed cases")
+# A line plot with highest total cases not in china 
+```
+
+
+* This last figure is showing other countries that had higher cases, Italy having the highest total cases durning March. 
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+## **Conclusion**
+In conclusion my hypothesis was correct, COVID 19 did spread to other countries and when it did the cases were at higher rate than China.
